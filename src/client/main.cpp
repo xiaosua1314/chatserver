@@ -47,7 +47,7 @@ void mainMenu(int);
 // 显示当前登录成功用户的基本信息
 void showCurrentUserData();
 
-// 聊天客户端程序实现，main线程用作发送线程，子线程用作接收线程
+// 聊天客户端程序实现，main线程用作发送线程，子线程用作接收线程            主线程只负责把数据传送到服务器端，子线程只负责服务器端进行业务处理
 int main(int argc, char **argv)
 {
     if (argc < 3)
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    // 初始化读写线程通信用的信号量
+    // 初始化读写线程通信用的信号量,第二个0表示两个线程之间通信
     sem_init(&rwsem, 0, 0);
 
     // 连接服务器成功，启动接收子线程
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-// 处理注册的响应逻辑
+// 处理注册的响应逻辑，要跟得到响应分开
 void doRegResponse(json &responsejs)
 {
     if (0 != responsejs["errno"].get<int>()) // 注册失败
@@ -316,7 +316,7 @@ void readTaskHandler(int clientfd)
         if (LOGIN_MSG_ACK == msgtype)
         {
             doLoginResponse(js); // 处理登录响应的业务逻辑
-            sem_post(&rwsem);    // 通知主线程，登录结果处理完成
+            sem_post(&rwsem);    // 通知主线程，登录结果处理完成，因为主线程会一直等待子线程的回复
             continue;
         }
 
